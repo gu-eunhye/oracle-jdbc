@@ -9,7 +9,7 @@
 		where 번호 between 1 and 10;
 	*/
 	
-	int currentPage = 1;
+	int currentPage = 1; //시작 페이지
 	if(request.getParameter("currentPage") != null) {
 	  currentPage = Integer.parseInt(request.getParameter("currentPage"));
 	}
@@ -22,7 +22,7 @@
 	Connection conn = DriverManager.getConnection(dburl, dbuser, dbpw);
 	System.out.println(conn);
 	 
-	int totalRow = 0;
+	int totalRow = 0; //전체 행 수
 	String totalRowSql = "select count(*) from employees";
 	PreparedStatement totalRowStmt = conn.prepareStatement(totalRowSql);
 	ResultSet totalRowRs = totalRowStmt.executeQuery();
@@ -30,11 +30,11 @@
 	   totalRow = totalRowRs.getInt(1); // totalRowRs.getInt("count(*)")
 	}
 	  
-	int rowPerPage = 10;
-	int beginRow = (currentPage-1) * rowPerPage + 1;
-	int endRow = beginRow + (rowPerPage - 1);
-	if(endRow > totalRow) {
-	   endRow = totalRow;
+	int rowPerPage = 10; //한페이지에 출력할 행 수
+	int beginRow = (currentPage-1) * rowPerPage + 1;  //한페이지에 출력될 첫번째 행 번호
+	int endRow = beginRow + (rowPerPage - 1); //한페이지에 출력될 마지막 행 번호
+	if(endRow > totalRow) { //마지막페이지의 마지막 행 번호 > 전체 행 수
+	   endRow = totalRow;	//--> 마지막 행 번호 = 전체 행 수
 	}
 	  
 	String sql = "select 번호, 이름, 이름첫글자, 연봉, 급여, 입사날짜, 입사년도 from (select rownum 번호, last_name 이름, substr(last_name, 1, 1) 이름첫글자, salary 연봉, round(salary/12, 2) 급여, hire_date 입사날짜, extract(year from hire_date) 입사년도 from employees) where 번호 between ? and ?";
@@ -112,17 +112,17 @@
 			maxPage > lastPage --> maxPage = lastPage
 		*/		
 		
-		int lastPage = totalRow / rowPerPage;
+		int lastPage = totalRow / rowPerPage; //마지막페이지
 		if(totalRow % rowPerPage != 0){
 			lastPage += 1;
 		}
 		
-		int pagePerPage = 10; //페이지당 출력할 페이지개수
+		int pagePerPage = 10; //페이지당 출력할 페이징 버튼 수
 		
-		int minPage	= (currentPage - 1) / pagePerPage * pagePerPage + 1;
-		int maxPage = minPage+(pagePerPage - 1);
-		if(maxPage > lastPage){
-			maxPage = lastPage;
+		int minPage	= (currentPage - 1) / pagePerPage * pagePerPage + 1; //페이징 버튼 시작 값
+		int maxPage = minPage+(pagePerPage - 1); //페이징 버튼 종료 값
+		if(maxPage > lastPage){ //마지막페이지의 페이징버튼종료값 > 마지막페이지
+			maxPage = lastPage; //--> 페이징버튼종료값 = 마지막페이지
 		}
 
 		if(minPage > 1){
